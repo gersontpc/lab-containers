@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mariadb:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: senha1234
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: UserBlog
+      MYSQL_PASSWORD: PwdBlog
+    expose:
+      - "3306"
+    volumes:
+      - database:/var/lib/mysql
+    networks:
+      - wordpress
+    cpus: 1.5
+    mem_limit: 1024m
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: UserBlog
+      WORDPRESS_DB_PASSWORD: PwdBlog
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wordpress:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - wordpress
+    depends_on:
+      - mysql
+    cpus: 1.0
+    mem_limit: 512m
+
+volumes:
+  database:
+  wordpress:
+
+networks:
+  wordpress:
+    driver: bridge
