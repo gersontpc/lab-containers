@@ -1,294 +1,214 @@
-## Lab-02 - Docker Compose (WordPress)
+## Lab-02 - Container Technologies
 
-## Objetivo:
-Praticar a criação e execução de uma aplicação com múltiplos serviços usando Docker Compose no GitHub Codespaces, validando rede, volumes, variáveis de ambiente e gerenciamento do ciclo de vida dos contêineres.
+### Exercício 2 - Execução de Contêineres e Volumes
 
-Neste laboratório, iremos subir uma aplicação WordPress com banco de dados MariaDB usando Docker Compose.
+Objetivo: Praticar a execução da mesma imagem criada no Lab-01 e utilizar os principais comandos do dia a dia para contêineres e volumes no Docker.
+
+Neste laboratório, iremos reutilizar a imagem do NGINX criada no Lab-01 para praticar execução, inspeção, acesso ao contêiner e montagem de volumes.
 
 > Observação: para executar este laboratório no GitHub Codespaces, valide antes se o ambiente possui Docker disponível com o comando `docker version`.
 
-### O que é Docker Compose
+### Pré-requisitos
 
-Objetivo: Entender o papel do Docker Compose na definição e execução de aplicações compostas por múltiplos contêineres.
+Objetivo: Garantir que a imagem utilizada no laboratório esteja disponível localmente ou publicada no Docker Hub.
 
-O Docker Compose permite definir serviços, redes, volumes e variáveis em um único arquivo YAML, facilitando a execução e administração de ambientes com mais de um contêiner.
+Antes de iniciar este laboratório, conclua o Lab-01 e garanta que a imagem abaixo exista no seu ambiente:
 
-### Comandos que serão utilizados no exercício
+```shell
+<user>/container-technologies:v1.0.0
+```
 
-Objetivo: Consultar rapidamente os principais comandos usados durante o laboratório.
+Caso a imagem não esteja disponível localmente, você pode fazer o pull a partir do Docker Hub:
+
+```shell
+docker image pull <user>/container-technologies:v1.0.0
+```
+
+### Principais comandos para contêineres
+
+Objetivo: Consultar rapidamente os comandos mais usados na execução e administração de contêineres.
 
 | Comando | Descrição |
 |---|---|
-| docker compose up -d | Cria e inicia os serviços em segundo plano. |
-| docker compose ps | Lista os serviços e contêineres gerenciados pelo Compose. |
-| docker compose logs -f | Acompanha os logs dos serviços em tempo real. |
-| docker compose exec wordpress bash | Acessa o contêiner do WordPress. |
-| docker compose config | Exibe a configuração final resolvida do Compose. |
-| docker compose down | Remove os contêineres e a rede criada pelo Compose. |
-| docker compose down -v | Remove os contêineres, a rede e os volumes nomeados. |
-| docker system prune -a | Remove imagens não utilizadas, cache e recursos parados. |
+| docker container run | Cria e executa um novo contêiner. |
+| docker container ps | Lista os contêineres em execução. |
+| docker container ps -a | Lista todos os contêineres, inclusive os parados. |
+| docker container top | Exibe os processos em execução dentro do contêiner. |
+| docker container exec -ti <container-id> /bin/sh | Acessa o shell de um contêiner em execução. |
+| docker container logs <container-id> | Exibe os logs do contêiner. |
+| docker container stop <container-id> | Interrompe a execução do contêiner. |
+| docker container rm -f <container-id> | Remove um contêiner, mesmo que esteja em execução. |
 
-## Preparando o ambiente no GitHub Codespaces
+### Principais comandos para volumes
 
-Objetivo: Criar ou acessar um Codespace pronto para executar Docker Compose sem depender de Cloud9 ou EC2.
+Objetivo: Consultar rapidamente os comandos mais usados para criação e administração de volumes.
 
-1. No GitHub, abra o repositório da disciplina ou este repositório.
-2. Clique em `Code`.
-3. Abra a aba `Codespaces`.
-4. Clique em `Create codespace on main`.
-5. Aguarde a abertura do VS Code Web.
-6. No terminal do Codespace, valide o Docker e o Compose:
+| Comando | Descrição |
+|---|---|
+| docker volume create <volume-name> | Cria um volume nomeado. |
+| docker volume ls | Lista os volumes disponíveis. |
+| docker volume inspect <volume-name> | Exibe detalhes de um volume. |
+| docker container run -v <volume-name>:/caminho/no/container | Executa um contêiner montando um volume. |
+| docker volume rm <volume-name> | Remove um volume não utilizado. |
+| docker volume prune | Remove volumes não utilizados. |
 
-```shell
-docker version
-docker compose version
-```
+## Executando a imagem criada no Lab-01
 
-7. Caso esteja utilizando outro repositório da disciplina, clone este conteúdo no terminal:
+Objetivo: Subir um contêiner com a imagem do Lab-01 e validar que a aplicação está respondendo corretamente.
 
-```shell
-git clone https://github.com/gersontpc/lab-containers.git
-```
-
-## Estrutura do laboratório
-
-Objetivo: Identificar os arquivos usados para subir a aplicação com Docker Compose.
-
-1. Acesse o diretório do laboratório:
+1. Liste as imagens disponíveis no ambiente:
 
 ```shell
-cd Lab-02/
+docker image ls
 ```
 
-2. Exiba o conteúdo do arquivo `compose.yaml`:
+2. Execute o contêiner em segundo plano com a imagem criada no Lab-01:
 
 ```shell
-cat compose.yaml
+docker container run -d --name lab02-nginx -p 8080:80 <user>/container-technologies:v1.0.0
 ```
 
-Conteúdo do `compose.yaml`:
-
-```yaml
-services:
-  mysql:
-    image: mariadb:latest
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: senha1234
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: UserBlog
-      MYSQL_PASSWORD: PwdBlog
-    expose:
-      - "3306"
-    volumes:
-      - database:/var/lib/mysql
-    networks:
-      - wordpress
-
-  wordpress:
-    image: wordpress:latest
-    restart: always
-    environment:
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DB_USER: UserBlog
-      WORDPRESS_DB_PASSWORD: PwdBlog
-      WORDPRESS_DB_NAME: wordpress
-    volumes:
-      - wordpress:/var/www/html
-    ports:
-      - "8080:80"
-    networks:
-      - wordpress
-    depends_on:
-      - mysql
-
-volumes:
-  database:
-  wordpress:
-
-networks:
-  wordpress:
-    driver: bridge
-```
-
-## Subindo a aplicação WordPress com Docker Compose
-
-Objetivo: Iniciar a aplicação completa com banco de dados e frontend web usando um único comando.
-
-1. No diretório `Lab-02`, execute:
+3. Liste os contêineres em execução:
 
 ```shell
-docker compose up -d
+docker container ps
 ```
 
-2. Verifique os serviços em execução:
+4. No GitHub Codespaces, abra a aba `Ports`.
+5. Verifique se a porta `8080` foi encaminhada automaticamente.
+6. Clique em `Open in Browser` para abrir a aplicação.
+7. Valide que a página exibe a mensagem criada no Lab-01.
+
+## Praticando os principais comandos de contêiner
+
+Objetivo: Explorar os comandos mais usados para listar, inspecionar processos e acessar um contêiner em execução.
+
+1. Liste novamente os contêineres ativos:
 
 ```shell
-docker compose ps
+docker container ps
 ```
 
-3. Caso queira validar a configuração final interpretada pelo Compose:
+2. Liste todos os contêineres, inclusive os que já foram finalizados:
 
 ```shell
-docker compose config
+docker container ps -a
 ```
 
-4. No Codespaces, abra a aba `Ports`.
-5. Verifique se a porta `8080` foi encaminhada automaticamente. Caso não apareça, adicione a porta manualmente.
-6. Clique em `Open in Browser` para abrir a aplicação WordPress.
-
-## Configurando o WordPress
-
-Objetivo: Concluir a instalação inicial da aplicação e validar a integração entre WordPress e MariaDB.
-
-1. Ao abrir a aplicação, selecione `Português do Brasil` e clique em `Continuar`.
-2. Preencha a tela inicial com os dados abaixo:
-
-- **Título do site:** container-technologies
-- **Nome do usuário:** wpuser
-- **Senha:** defina uma senha segura
-- **O seu e-mail:** seu e-mail institucional
-
-3. Clique em `Instalar WordPress`.
-4. Na tela de login, entre com o usuário `wpuser` e a senha definida.
-5. Ao acessar o painel de administração, clique no nome do site no canto superior esquerdo para visualizar o frontend.
-
-## Inspecionando os serviços do Compose
-
-Objetivo: Verificar o estado dos contêineres e acessar logs e shell dos serviços.
-
-1. Liste novamente os serviços:
+3. Exiba os processos em execução dentro do contêiner:
 
 ```shell
-docker compose ps
+docker container top lab02-nginx
 ```
 
-2. Acompanhe os logs do WordPress:
+4. Acesse o shell do contêiner:
 
 ```shell
-docker compose logs -f wordpress
+docker container exec -ti lab02-nginx /bin/sh
 ```
 
-3. Em outro terminal, acesse o contêiner do WordPress:
+5. Dentro do contêiner, valide o conteúdo do arquivo publicado pelo NGINX:
 
 ```shell
-docker compose exec wordpress bash
+cat /usr/share/nginx/html/index.html
+
+Container Technologies - LAB 01
 ```
 
-4. Caso queira validar o banco de dados, acompanhe os logs do MariaDB:
+6. Saia do contêiner com o comando:
 
 ```shell
-docker compose logs -f mysql
+exit
 ```
 
-## Definindo limites de recursos dos contêineres
+## Praticando volumes com a mesma imagem
 
-Objetivo: Subir os serviços com restrições básicas de CPU e memória para praticar controle de consumo de recursos.
+Objetivo: Montar um volume na mesma imagem do Lab-01 e validar como o conteúdo do volume substitui o conteúdo original da imagem.
 
-> Observação: no Docker Compose local, o uso de limites funciona de forma diferente do Docker Swarm. Neste laboratório, o arquivo foi adaptado para um cenário prático de Compose no Codespaces.
-
-1. Exiba o conteúdo do arquivo `compose-limits.yml`:
+1. Crie um volume nomeado:
 
 ```shell
-cat compose-limits.yml
+docker volume create lab02-html
 ```
 
-Conteúdo do `compose-limits.yml`:
-
-```yaml
-services:
-  mysql:
-    image: mariadb:latest
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: senha1234
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: UserBlog
-      MYSQL_PASSWORD: PwdBlog
-    expose:
-      - "3306"
-    volumes:
-      - database:/var/lib/mysql
-    networks:
-      - wordpress
-    cpus: 1.5
-    mem_limit: 1024m
-
-  wordpress:
-    image: wordpress:latest
-    restart: always
-    environment:
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DB_USER: UserBlog
-      WORDPRESS_DB_PASSWORD: PwdBlog
-      WORDPRESS_DB_NAME: wordpress
-    volumes:
-      - wordpress:/var/www/html
-    ports:
-      - "8080:80"
-    networks:
-      - wordpress
-    depends_on:
-      - mysql
-    cpus: 1.0
-    mem_limit: 512m
-
-volumes:
-  database:
-  wordpress:
-
-networks:
-  wordpress:
-    driver: bridge
-```
-
-2. Recrie os serviços com o arquivo de limites:
+2. Liste os volumes disponíveis:
 
 ```shell
-docker compose down
-docker compose -f compose-limits.yml up -d
+docker volume ls
 ```
 
-3. Liste novamente os contêineres:
+3. Inspecione o volume criado:
 
 ```shell
-docker compose -f compose-limits.yml ps
+docker volume inspect lab02-html
 ```
 
-4. Se quiser observar o consumo em tempo real, execute:
+4. Preencha o volume com um novo arquivo `index.html` usando um contêiner temporário:
 
 ```shell
-docker stats
+docker container run --rm \
+  -v lab02-html:/volume \
+  alpine:latest \
+  sh -c 'echo "Volumes - Container Technologies" > /volume/index.html'
+```
+
+5. Execute um novo contêiner usando a mesma imagem do Lab-01, agora montando o volume no diretório do NGINX:
+
+```shell
+docker container run -d --name lab02-nginx-volume -p 8081:80 \
+  -v lab02-html:/usr/share/nginx/html \
+  <user>/container-technologies:v1.0.0
+```
+
+6. Abra a aba `Ports` no Codespaces e valide a porta `8081`.
+7. Clique em `Open in Browser` para abrir a aplicação.
+8. Valide que a nova mensagem exibida é:
+
+```text
+Volumes - Container Technologies
+```
+
+9. Acesse o contêiner com volume e confira o conteúdo:
+
+```shell
+docker container exec -ti lab02-nginx-volume /bin/sh
+cat /usr/share/nginx/html/index.html
+
+Volumes - Container Technologies
+```
+
+10. Saia do contêiner:
+
+```shell
+exit
 ```
 
 ## Limpando o ambiente
 
-Objetivo: Remover contêineres, rede, volumes e imagens não utilizadas para deixar o ambiente pronto para novos testes.
+Objetivo: Remover os contêineres e volumes criados no laboratório para deixar o ambiente pronto para novos testes.
 
-1. Remova o ambiente criado com o arquivo de limites:
+1. Remova os contêineres criados durante o laboratório:
 
 ```shell
-docker compose -f compose-limits.yml down -v
+docker container rm -f lab02-nginx lab02-nginx-volume
 ```
 
-2. Limpe recursos não utilizados do Docker:
+2. Remova o volume criado:
+
+```shell
+docker volume rm lab02-html
+```
+
+3. Se desejar remover volumes órfãos, execute:
+
+```shell
+docker volume prune
+```
+
+4. Para limpar imagens e cache não utilizados, execute:
 
 ```shell
 docker system prune -a
 ```
 
-Output esperado: pressione `y` para confirmar.
-
-```output
-WARNING! This will remove:
-  - all stopped containers
-  - all networks not used by at least one container
-  - all images without at least one container associated to them
-  - all build cache
-
-Are you sure you want to continue? [y/N] y
-```
-
-3. Laboratório concluído com sucesso.
+5. Laboratório concluído com sucesso.
