@@ -47,7 +47,7 @@ docker compose version
 7. Caso esteja utilizando outro repositório da disciplina, clone este conteúdo no terminal:
 
 ```shell
-git clone https://github.com/gersontpc/container-technologies.git
+git clone https://github.com/gersontpc/lab-containers.git
 ```
 
 ## Estrutura do laboratório
