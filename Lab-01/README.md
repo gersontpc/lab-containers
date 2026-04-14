@@ -152,13 +152,13 @@ Container Technologies - LAB 01
 
 Objetivo: Aprender a separar estágios de construção e entrega da imagem, copiando apenas o artefato necessário para a imagem final.
 
-1. Crie um novo arquivo chamado `Dockerfile.multistage`.
+22. Crie um novo arquivo chamado `Dockerfile.multistage`.
 
 ```shell
 touch Dockerfile.multistage
 ```
 
-2. Adicione o conteúdo abaixo:
+23. Adicione o conteúdo abaixo:
 
 ```Dockerfile
 FROM alpine:latest AS builder
@@ -172,34 +172,34 @@ EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 ```
 
-3. Realize o build da imagem multi-stage:
+24. Realize o build da imagem multi-stage:
 
 ```shell
 docker image build -f Dockerfile.multistage -t <user>/container-technologies:v1.0.1 .
 ```
 
-4. Execute o contêiner com a nova imagem em outra porta do host:
+25. Execute o contêiner com a nova imagem em outra porta do host:
 
 ```shell
 docker container run -d -p 8081:80 <user>/container-technologies:v1.0.1
 ```
 
-5. No Codespaces, abra a aba `Ports` e valide a porta `8081`.
+26. No Codespaces, abra a aba `Ports` e valide a porta `8081`.
 
-6. Abra a aplicação no navegador e confirme a mensagem:
+27. Abra a aplicação no navegador e confirme a mensagem:
 
 ```text
 Multi-Stage Containers Technologies
 ```
 
-7. Acesse o contêiner em execução:
+28. Acesse o contêiner em execução:
 
 ```shell
 docker container ps
 docker container exec -ti <container-id> /bin/sh
 ```
 
-8. Valide o conteúdo do arquivo publicado pelo estágio final:
+29. Valide o conteúdo do arquivo publicado pelo estágio final:
 
 ```shell
 cat /usr/share/nginx/html/index.html
@@ -207,13 +207,13 @@ cat /usr/share/nginx/html/index.html
 Multi-Stage Containers Technologies
 ```
 
-9. Para sair do container execute o atalho `CTRL + D`.
+30. Para sair do container execute o atalho `CTRL + D`.
 
 ### Realizando o push da imagem para o Docker Hub
 
 Objetivo: Aprender a autenticar no registry e publicar a imagem gerada de maneira prática no Docker Hub.
 
-1. Faça login no [Docker Hub](https://hub.docker.com/):
+31. Faça login no [Docker Hub](https://hub.docker.com/):
 
 ```shell
 docker logout
@@ -228,7 +228,7 @@ https://docs.docker.com/engine/reference/commandline/login/#credentials-store
 Login Succeeded
 ```
 
-2. Faça o push da imagem para o Docker Hub:
+32. Faça o push da imagem para o Docker Hub:
 
 ```shell
 docker image push <user>/container-technologies:v1.0.0
@@ -245,7 +245,7 @@ a483da8ab3e9: Mounted from library/nginx
 v1.0.0: digest: sha256:a7145b796837b310dda6cae822aae81a3efc86b2b842ac0d00433dbd0a9fa834 size: 1985
 ```
 
-3. Se desejar, publique também a imagem gerada com multi-stage:
+33. Se desejar, publique também a imagem gerada com multi-stage:
 
 ```shell
 docker image push <user>/container-technologies:v1.0.1
@@ -255,25 +255,25 @@ docker image push <user>/container-technologies:v1.0.1
 
 Objetivo: Construir e publicar uma imagem compatível com múltiplas arquiteturas usando `docker buildx`.
 
-1. Liste os builders disponíveis no ambiente:
+34. Liste os builders disponíveis no ambiente:
 
 ```shell
 docker buildx ls
 ```
 
-2. Caso necessário, crie um builder e defina-o como padrão da sessão:
+35. Caso necessário, crie um builder e defina-o como padrão da sessão:
 
 ```shell
 docker buildx create --use --name multi-builder
 ```
 
-3. Inicialize o builder:
+36. Inicialize o builder:
 
 ```shell
 docker buildx inspect --bootstrap
 ```
 
-4. Realize o build multi-platform para `linux/amd64` e `linux/arm64`, enviando a imagem diretamente para o mesmo repositório no Docker Hub:
+37. Realize o build multi-platform para `linux/amd64` e `linux/arm64`, enviando a imagem diretamente para o mesmo repositório no Docker Hub:
 
 ```shell
 docker buildx build \
@@ -282,19 +282,19 @@ docker buildx build \
   --push .
 ```
 
-5. Após o build e push da imagem multi-platform, execute o contêiner em outra porta do host:
+38. Após o build e push da imagem multi-platform, execute o contêiner em outra porta do host:
 
 ```shell
-docker container run -d -p 8082:80 gersontpc/container-technologies:v1.0.2
+docker container run -d -p 8082:80 <user>/container-technologies:v1.0.2
 ```
 
-6. No Codespaces, abra a aba `Ports` e valide a porta `8082`.
+39. No Codespaces, abra a aba `Ports` e valide a porta `8082`.
 
-7. Abra a aplicação no navegador e confirme que a imagem multi-platform foi executada corretamente.
+40. Abra a aplicação no navegador e confirme que a imagem multi-platform foi executada corretamente.
 
-8. Acompanhe a saída do comando até a publicação do manifesto multi-platform no Docker Hub.
+41. Acompanhe a saída do comando até a publicação do manifesto multi-platform no Docker Hub.
 
-9. Valide no Docker Hub que a mesma imagem/tag foi publicada com suporte a múltiplas arquiteturas.
+42. Valide no Docker Hub que a mesma imagem/tag foi publicada com suporte a múltiplas arquiteturas.
 
 > Observação: no fluxo com `buildx` e `--push`, a imagem é enviada diretamente ao registry. Por isso, ela pode não aparecer localmente com `docker image ls` como acontece no build tradicional.
 
@@ -302,15 +302,15 @@ docker container run -d -p 8082:80 gersontpc/container-technologies:v1.0.2
 
 Objetivo: Remover contêineres, imagens e cache para deixar o ambiente pronto para um novo ciclo de testes.
 
-1. Exclua o contêiner em execução:
+43. Exclua o contêiner em execução:
 
 ```shell
-docker container rm -f <id-container-01> <id-container-02>
+docker container rm -f <id-container-01> <id-container-02> <id-container-03>
 ```
 
 Se houver um segundo contêiner em execução referente ao teste de multi-stage, remova-o também.
 
-2. Limpe o ambiente:
+44. Limpe o ambiente:
 
 ```shell
 docker system prune --all
