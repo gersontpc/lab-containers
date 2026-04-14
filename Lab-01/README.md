@@ -216,6 +216,7 @@ Objetivo: Aprender a autenticar no registry e publicar a imagem gerada de maneir
 1. Faça login no [Docker Hub](https://hub.docker.com/):
 
 ```shell
+docker logout
 docker login
 user: <user>
 password: <password>
