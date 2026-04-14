@@ -207,6 +207,8 @@ cat /usr/share/nginx/html/index.html
 Multi-Stage Containers Technologies
 ```
 
+9. Para sair do container execute o atalho `CTRL + D`.
+
 ### Realizando o push da imagem para o Docker Hub
 
 Objetivo: Aprender a autenticar no registry e publicar a imagem gerada de maneira prática no Docker Hub.
