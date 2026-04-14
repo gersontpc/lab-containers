@@ -282,9 +282,19 @@ docker buildx build \
   --push .
 ```
 
-5. Acompanhe a saída do comando até a publicação do manifesto multi-platform no Docker Hub.
+5. Após o build e push da imagem multi-platform, execute o contêiner em outra porta do host:
 
-6. Valide no Docker Hub que a mesma imagem/tag foi publicada com suporte a múltiplas arquiteturas.
+```shell
+docker container run -d -p 8082:80 gersontpc/container-technologies:v1.0.2
+```
+
+6. No Codespaces, abra a aba `Ports` e valide a porta `8082`.
+
+7. Abra a aplicação no navegador e confirme que a imagem multi-platform foi executada corretamente.
+
+8. Acompanhe a saída do comando até a publicação do manifesto multi-platform no Docker Hub.
+
+9. Valide no Docker Hub que a mesma imagem/tag foi publicada com suporte a múltiplas arquiteturas.
 
 > Observação: no fluxo com `buildx` e `--push`, a imagem é enviada diretamente ao registry. Por isso, ela pode não aparecer localmente com `docker image ls` como acontece no build tradicional.
 
@@ -295,7 +305,7 @@ Objetivo: Remover contêineres, imagens e cache para deixar o ambiente pronto pa
 1. Exclua o contêiner em execução:
 
 ```shell
-docker container rm -f ff2
+docker container rm -f <id-container-01> <id-container-02>
 ```
 
 Se houver um segundo contêiner em execução referente ao teste de multi-stage, remova-o também.
