@@ -154,6 +154,10 @@ Objetivo: Aprender a separar estágios de construção e entrega da imagem, copi
 
 1. Crie um novo arquivo chamado `Dockerfile.multistage`.
 
+```shell
+touch Dockerfile.multistage
+```
+
 2. Adicione o conteúdo abaixo:
 
 ```Dockerfile
